@@ -30,6 +30,7 @@
 
 <script>
   const msg = new SpeechSynthesisUtterance();
+  const synth = window.speechSynthesis;
   let voices = [];
   const voicesDropdown = document.querySelector('[name="voice"]');
   const options = document.querySelectorAll('[type="range"], [name="text"]');
@@ -37,6 +38,35 @@
   const stopButton = document.querySelector('#stop');
 
   //Your code goes here
+	function populateVoices() {
+  voices = synth.getVoices();
+  voicesDropdown.innerHTML = voices
+    .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+    .join('');
+}
+
+populateVoices();
+if (speechSynthesis.onvoiceschanged !== undefined) {
+  speechSynthesis.onvoiceschanged = populateVoices;
+}
+
+	speakButton.addEventListener('click', () => {
+  const utterThis = new SpeechSynthesisUtterance(options[2].value);
+  const selectedVoice = voicesDropdown.selectedOptions[0].getAttribute('value');
+  for (let i = 0; i < voices.length; i++) {
+    if (voices[i].name === selectedVoice) {
+      utterThis.voice = voices[i];
+    }
+  }
+  utterThis.rate = options[0].value;
+  utterThis.pitch = options[1].value;
+  synth.speak(utterThis);
+});
+
+stopButton.addEventListener('click', () => {
+  synth.cancel();
+});
+	
 </script>
 
 </body>
